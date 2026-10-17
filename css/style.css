@@ -1,0 +1,2824 @@
+/* =================================================================
+   MAISON BRAISE — Custom Stylesheet
+   Step 1: design tokens, base setup, navbar.
+   Section content will be styled in later steps.
+   ================================================================= */
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Colors */
+  --color-charcoal: #1C1A17;   /* near-black warm background (navbar, dark sections) */
+  --color-cream: #F4EFE4;      /* light warm background */
+  --color-ink: #231F1C;        /* body text on light backgrounds */
+  --color-gold: #C9A24B;       /* primary accent — warm gold */
+  --color-clay: #A8492F;       /* secondary accent — muted terracotta */
+  --color-olive: #535B45;      /* tertiary accent — deep olive */
+  --color-whatsapp: #25D366;   /* WhatsApp brand green, used only for reserve/order CTAs */
+  --color-whatsapp-dark: #1DA851;
+
+  /* Semantic aliases — reuse the palette above under generic names
+     so the theme can be swapped by editing only this block */
+  --color-primary: var(--color-gold);
+  --color-accent: var(--color-clay);
+  --color-dark: var(--color-charcoal);
+  --color-light: var(--color-cream);
+  --color-parchment: #EFE7D6; /* slightly deeper warm tone, used to separate the About section */
+
+  /* Typography */
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Work Sans", "Segoe UI", sans-serif;
+
+  /* Layout */
+  --navbar-height: 84px;
+}
+
+/* ---------- Base reset & body ---------- */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--navbar-height);
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--color-ink);
+  background-color: var(--color-cream);
+  margin: 0;
+}
+
+/* Headings use the display serif everywhere in the site */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--color-charcoal);
+}
+
+/* Anchor offset so fixed navbar never hides a section title */
+main section {
+  scroll-margin-top: var(--navbar-height);
+}
+
+/* Visible keyboard focus for accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* =================================================================
+   NAVBAR
+   ================================================================= */
+#mainNavbar {
+  height: var(--navbar-height);
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Solid dark background + shadow once the page has scrolled past the
+   hero's top edge — toggled via JS in initScrollEffects() */
+#mainNavbar.navbar-scrolled {
+  background-color: var(--color-charcoal);
+  border-bottom-color: rgba(201, 162, 75, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Brand / logo */
+.navbar-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.brand-mark {
+  color: var(--color-cream);
+}
+
+.brand-mark--accent {
+  color: var(--color-gold);
+  font-style: italic;
+}
+
+/* Nav links */
+.navbar-nav .nav-link {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(244, 239, 228, 0.82);
+  padding: 0.5rem 1rem;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+  color: var(--color-gold);
+}
+
+/* Small underline indicator on hover, aligned under the label */
+.navbar-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0.15rem;
+  height: 1px;
+  background-color: var(--color-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.navbar-nav .nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Active section indicator — set via IntersectionObserver in js/script.js.
+   Uses the same underline as :hover, but persists without a pointer, and
+   the label itself goes full-opacity gold to make the current section clear. */
+.navbar-nav .nav-link.active {
+  color: var(--color-gold);
+}
+
+.navbar-nav .nav-link.active::after {
+  transform: scaleX(1);
+}
+
+/* Burger icon: recolor default Bootstrap icon to match the dark navbar */
+.navbar-toggler {
+  border: 1px solid rgba(244, 239, 228, 0.35);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(244, 239, 228, 0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Reserve button — WhatsApp-style CTA, deliberately the one warm/bright
+   element in the navbar so it reads clearly as the primary action */
+.btn-reserve {
+  background-color: var(--color-whatsapp);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.3rem;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-reserve:hover,
+.btn-reserve:focus {
+  background-color: var(--color-whatsapp-dark);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-reserve i {
+  font-size: 1.05rem;
+}
+
+/* On mobile, stack the reserve button below the links inside the collapse */
+@media (max-width: 991.98px) {
+  #navbarContent {
+    background-color: var(--color-charcoal);
+    padding: 1rem 0 1.5rem;
+  }
+
+  .btn-reserve {
+    margin-top: 0.75rem;
+    width: 100%;
+    max-width: 260px;
+  }
+}
+
+/* =================================================================
+   SECTION PLACEHOLDERS
+   Temporary spacing so empty sections are visible while building.
+   Remove / replace once real content is added in later steps.
+   ================================================================= */
+main section {
+  min-height: 40vh;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+#footer {
+  min-height: 20vh;
+  background-color: var(--color-charcoal);
+}
+
+/* =================================================================
+   HERO SECTION
+   ================================================================= */
+
+/* Full-screen wrapper. position:relative anchors the absolutely
+   positioned background, overlay and scroll indicator inside it. */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: var(--navbar-height); /* keeps content clear of the fixed navbar */
+  padding-bottom: 0;
+}
+
+/* Background image layer (separate from the overlay so each can be
+   tuned independently — e.g. swap the image without touching the gradient) */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-dark); /* fallback while the image loads / if missing */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* Dark gradient overlay — darker at the bottom so the CTA buttons and
+   scroll indicator stay readable, lighter at the top near the navbar */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(28, 26, 23, 0.55) 0%,
+    rgba(28, 26, 23, 0.65) 50%,
+    rgba(28, 26, 23, 0.85) 100%
+  );
+  z-index: 1;
+}
+
+/* Content sits above the background + overlay */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: var(--color-light);
+}
+
+/* Badge / small label above the title */
+.hero-badge {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-dark);
+  background-color: var(--color-primary);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+/* Main heading */
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--color-light);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+
+.hero-title--accent {
+  font-style: italic;
+  color: var(--color-primary);
+}
+
+/* Subheading */
+.hero-subtitle {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: rgba(244, 239, 228, 0.88);
+  max-width: 42ch;
+  margin: 0 auto 2.25rem;
+  line-height: 1.6;
+}
+
+/* CTA row */
+.hero-cta {
+  margin-bottom: 1rem;
+}
+
+/* WhatsApp-style reserve button (reused across the site for
+   any element with the .btn-whatsapp class) */
+.btn-whatsapp {
+  background-color: var(--color-whatsapp);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.75rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-whatsapp:hover,
+.btn-whatsapp:focus {
+  background-color: var(--color-whatsapp-dark);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Outline "View Menu" button */
+.btn-outline-hero {
+  background-color: transparent;
+  color: var(--color-light);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: 1.5px solid rgba(244, 239, 228, 0.6);
+  border-radius: 999px;
+  padding: 0.75rem 1.75rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-outline-hero:hover,
+.btn-outline-hero:focus {
+  background-color: rgba(244, 239, 228, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-light);
+  transform: translateY(-2px);
+}
+
+/* ---------- Scroll-down indicator ---------- */
+.scroll-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: var(--color-light);
+  font-size: 1.6rem;
+  opacity: 0.85;
+  animation: bounce 2.2s infinite;
+}
+
+.scroll-indicator:hover,
+.scroll-indicator:focus {
+  color: var(--color-primary);
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  40% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+/* ---------- Fade-in-up entrance animation ---------- */
+/* One orchestrated reveal on load: badge, title, subtitle and
+   buttons stagger in with increasing delay via the .delay-* classes */
+.fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.35s; }
+.delay-3 { animation-delay: 0.55s; }
+.delay-4 { animation-delay: 0.75s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced-motion: skip the bounce and fade-in animations */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-indicator {
+    animation: none;
+  }
+  .fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 575.98px) {
+  .hero-cta .btn-whatsapp,
+  .hero-cta .btn-outline-hero {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .scroll-indicator {
+    bottom: 1.25rem;
+  }
+}
+
+/* =================================================================
+   REUSABLE SECTION TITLE BLOCK
+   (eyebrow / title / description — reused by Menu, Gallery,
+   About and Contact section headers)
+   ================================================================= */
+.section-eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.6rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  color: var(--color-dark);
+  margin-bottom: 1rem;
+}
+
+.section-desc {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(35, 31, 28, 0.72);
+  margin-bottom: 0;
+}
+
+/* =================================================================
+   MENU SECTION
+   ================================================================= */
+.menu-section {
+  background-color: var(--color-light);
+  padding-top: 5.5rem;
+  padding-bottom: 5.5rem;
+}
+
+/* ---------- Category filter tabs ---------- */
+.filter-btn {
+  background-color: transparent;
+  border: 1.5px solid rgba(35, 31, 28, 0.25);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  padding: 0.5rem 1.3rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-accent);
+}
+
+.filter-btn.active {
+  background-color: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-light);
+}
+
+/* ---------- Dish cards ---------- */
+.menu-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(28, 26, 23, 0.07);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* Lift + scale + shadow increase on hover */
+.menu-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 36px rgba(28, 26, 23, 0.15);
+}
+
+.menu-card-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: var(--color-dark); /* fallback while placeholder images load */
+}
+
+.menu-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* Image zoom on card hover */
+.menu-card:hover .menu-card-img img {
+  transform: scale(1.08);
+}
+
+.menu-card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.menu-card-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.menu-card-price {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.menu-card-desc {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(35, 31, 28, 0.7);
+  margin: 0.5rem 0 1.15rem;
+  flex-grow: 1;
+}
+
+/* Small order button — reuses the WhatsApp green from the design tokens */
+.btn-order {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--color-whatsapp);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 1.15rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-order:hover,
+.btn-order:focus {
+  background-color: var(--color-whatsapp-dark);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* "View Full Menu" outline button */
+.btn-outline-menu {
+  background-color: transparent;
+  border: 1.5px solid var(--color-dark);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.75rem 1.9rem;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-outline-menu:hover,
+.btn-outline-menu:focus {
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  transform: translateY(-2px);
+}
+
+/* ---------- Fade-in-on-scroll (driven by IntersectionObserver in JS) ---------- */
+.fade-in-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect reduced-motion: show cards immediately, no slide/hover transforms */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .menu-card:hover {
+    transform: none;
+  }
+}
+
+/* =================================================================
+   GALLERY SECTION
+   ================================================================= */
+.gallery-section {
+  background-color: var(--color-light);
+  padding-top: 5.5rem;
+  padding-bottom: 5.5rem;
+}
+
+/* Uniform square tile, image cropped to fill via object-fit */
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(28, 26, 23, 0.08);
+  cursor: pointer;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.08);
+}
+
+/* Dark overlay with zoom icon + caption, hidden until hover */
+.gallery-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-light);
+  background: linear-gradient(180deg, rgba(28, 26, 23, 0.15) 0%, rgba(28, 26, 23, 0.78) 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.gallery-item:hover .gallery-overlay,
+.gallery-item:focus-visible .gallery-overlay {
+  opacity: 1;
+}
+
+.gallery-zoom-icon {
+  font-size: 1.8rem;
+  color: var(--color-primary);
+}
+
+.gallery-caption {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Reduced-motion: keep the zoom transform off, overlay can still
+   toggle since opacity alone isn't considered disruptive motion */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item:hover img {
+    transform: none;
+  }
+}
+
+/* =================================================================
+   LIGHTBOX MODAL
+   Custom, premium-feeling override of the default Bootstrap modal:
+   full-screen, near-opaque dark content area, circular icon buttons.
+   ================================================================= */
+
+/* Darker, more opaque backdrop than Bootstrap's default — this is
+   the site's only modal, so a global override is safe here */
+.modal-backdrop.show {
+  opacity: 0.92;
+  background-color: var(--color-dark);
+}
+
+.lightbox-modal .modal-content {
+  background-color: rgba(28, 26, 23, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.lightbox-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 900px;
+  padding: 2rem 4.5rem; /* leaves room for the side arrows on desktop */
+  margin: 0 auto;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-caption {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-light);
+  opacity: 0.85;
+  text-align: center;
+  margin: 0;
+}
+
+/* Close button — top-right circular icon button */
+.lightbox-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--color-light);
+  background-color: rgba(244, 239, 228, 0.1);
+  border: 1px solid rgba(244, 239, 228, 0.3);
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.lightbox-close:hover,
+.lightbox-close:focus-visible {
+  background-color: rgba(244, 239, 228, 0.2);
+  transform: rotate(90deg);
+}
+
+/* Previous / Next circular arrow buttons */
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--color-light);
+  background-color: rgba(244, 239, 228, 0.1);
+  border: 1px solid rgba(244, 239, 228, 0.3);
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.lightbox-nav:hover,
+.lightbox-nav:focus-visible {
+  background-color: rgba(244, 239, 228, 0.2);
+}
+
+.lightbox-prev {
+  left: 1rem;
+}
+
+.lightbox-next {
+  right: 1rem;
+}
+
+/* Mobile: shrink the arrows and tighten the padding so the image
+   gets maximum space on small screens */
+@media (max-width: 575.98px) {
+  .lightbox-body {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .lightbox-nav {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+
+  .lightbox-prev {
+    left: 0.5rem;
+  }
+
+  .lightbox-next {
+    right: 0.5rem;
+  }
+
+  .lightbox-close {
+    top: 1rem;
+    right: 1rem;
+    width: 38px;
+    height: 38px;
+  }
+
+  .lightbox-image {
+    max-height: 65vh;
+  }
+}
+
+/* =================================================================
+   ABOUT SECTION
+   ================================================================= */
+.about-section {
+  background-color: var(--color-parchment);
+  padding-top: 5.5rem;
+  padding-bottom: 5.5rem;
+  border-top: 1px solid rgba(28, 26, 23, 0.08);
+}
+
+/* ---------- Image + decorative frame + floating badge ---------- */
+.about-image-frame {
+  position: relative;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 1.25rem 0; /* room for the offset frame on the right */
+}
+
+/* Offset gold outline sitting behind the photo */
+.about-image-frame::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(100% - 1.25rem);
+  height: 100%;
+  border: 3px solid var(--color-gold);
+  border-radius: 16px;
+  z-index: 0;
+}
+
+.about-image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(28, 26, 23, 0.18);
+}
+
+/* Floating circular badge, slightly rotated for a hand-placed feel */
+.about-badge {
+  position: absolute;
+  z-index: 2;
+  bottom: -1.25rem;
+  left: -0.5rem;
+  width: 108px;
+  height: 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  border: 2px solid var(--color-gold);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+  box-shadow: 0 12px 28px rgba(28, 26, 23, 0.3);
+}
+
+.about-badge-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.about-badge-year {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--color-gold);
+  line-height: 1.2;
+}
+
+/* ---------- Story text + highlights ---------- */
+.about-text {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: rgba(35, 31, 28, 0.82);
+}
+
+.about-highlights {
+  list-style: none;
+  margin: 1.5rem 0 2rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.about-highlights li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--color-dark);
+}
+
+.about-highlights i {
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+/* ---------- Stats ---------- */
+.about-stats {
+  border-top: 1px solid rgba(28, 26, 23, 0.12);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 1.7rem;
+  color: var(--color-accent);
+  margin-bottom: 0.15rem;
+}
+
+.stat-number {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  color: var(--color-dark);
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: rgba(35, 31, 28, 0.68);
+}
+
+/* ---------- Chef quote ---------- */
+.about-quote {
+  margin: 4rem 0 0;
+  padding: 0;
+  border: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--color-dark);
+}
+
+.about-quote-author {
+  display: block;
+  margin-top: 1rem;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* ---------- Left / right entrance animation (image / text columns) ---------- */
+.fade-in-left,
+.fade-in-right {
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.fade-in-left {
+  transform: translateX(-40px);
+}
+
+.fade-in-right {
+  transform: translateX(40px);
+}
+
+.fade-in-left.is-visible,
+.fade-in-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 991.98px) {
+  /* Centered frame reads better once the image is full-width above the text */
+  .about-image-frame {
+    padding: 1rem 1rem 1rem 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .about-badge {
+    width: 88px;
+    height: 88px;
+    bottom: -1rem;
+    left: -0.25rem;
+  }
+
+  .about-badge-year {
+    font-size: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-left,
+  .fade-in-right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* =================================================================
+   CONTACT SECTION
+   ================================================================= */
+.contact-section {
+  background-color: var(--color-light);
+  padding-top: 5.5rem;
+  padding-bottom: 5.5rem;
+  border-top: 1px solid rgba(28, 26, 23, 0.08);
+}
+
+/* ---------- Info cards (hours / address / phone) ---------- */
+.contact-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background-color: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 14px rgba(28, 26, 23, 0.06);
+}
+
+.contact-card-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-dark);
+  color: var(--color-gold);
+  font-size: 1.3rem;
+}
+
+.contact-card-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: var(--color-dark);
+  margin-bottom: 0.6rem;
+}
+
+.contact-card-text {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: rgba(35, 31, 28, 0.75);
+  margin-bottom: 0.6rem;
+}
+
+.contact-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contact-card-link:hover,
+.contact-card-link:focus {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* Opening hours rows */
+.contact-hours-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.contact-hours-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: rgba(35, 31, 28, 0.8);
+}
+
+.contact-hours-list li span:first-child {
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+/* Phone / WhatsApp / Email list */
+.contact-methods-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.contact-methods-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+}
+
+.contact-methods-list i {
+  width: 20px;
+  text-align: center;
+  color: var(--color-accent);
+  font-size: 1.05rem;
+}
+
+/* The WhatsApp row is a <button> (so it can trigger openWhatsApp),
+   styled to look identical to the tel:/mailto: links beside it */
+.contact-methods-list a,
+.contact-methods-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: inherit;
+  color: var(--color-dark);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.contact-methods-list a:hover,
+.contact-methods-list a:focus,
+.contact-methods-link:hover,
+.contact-methods-link:focus {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* ---------- Reservation form ---------- */
+.contact-form {
+  background-color: var(--color-parchment);
+  border-radius: 16px;
+  padding: 2rem;
+  height: 100%;
+  box-shadow: 0 4px 18px rgba(28, 26, 23, 0.07);
+}
+
+.contact-form .form-label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.88rem;
+  color: var(--color-dark);
+  margin-bottom: 0.35rem;
+}
+
+/* Rounded inputs on a cream background, gold focus ring — overrides
+   Bootstrap's default blue focus style to match the site's palette */
+.contact-form .form-control,
+.contact-form .form-select {
+  background-color: #fff;
+  border: 1.5px solid rgba(28, 26, 23, 0.15);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-dark);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-form .form-control:focus,
+.contact-form .form-select:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 0.2rem rgba(201, 162, 75, 0.22);
+  outline: none;
+}
+
+.contact-form .invalid-feedback {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+}
+
+/* Submit button — WhatsApp green, matching the CTAs used elsewhere */
+.btn-whatsapp-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-whatsapp);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 2rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-whatsapp-form:hover,
+.btn-whatsapp-form:focus {
+  background-color: var(--color-whatsapp-dark);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ---------- Map embed ---------- */
+.contact-map {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(28, 26, 23, 0.12);
+}
+
+.contact-map iframe {
+  display: block;
+  width: 100%;
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 575.98px) {
+  .contact-form {
+    padding: 1.5rem;
+  }
+
+  .contact-card {
+    padding: 1.25rem;
+  }
+}
+
+/* =================================================================
+   FOOTER
+   ================================================================= */
+.site-footer {
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  border-top: 1px solid rgba(201, 162, 75, 0.25); /* gold hairline */
+}
+
+/* ---------- Column 1: Brand ---------- */
+.footer-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.footer-tagline {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(244, 239, 228, 0.75);
+  margin: 1rem 0 1.25rem;
+  max-width: 32ch;
+}
+
+.footer-socials {
+  display: flex;
+}
+
+.footer-social-icon {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(244, 239, 228, 0.08);
+  border: 1px solid rgba(244, 239, 228, 0.2);
+  color: var(--color-light);
+  font-size: 1rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-social-icon:hover,
+.footer-social-icon:focus-visible {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-dark);
+  transform: translateY(-2px);
+}
+
+/* ---------- Column headings (Quick Links / Hours / Contact) ---------- */
+.footer-heading {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin-bottom: 1.1rem;
+}
+
+/* ---------- Column 2: Quick Links ---------- */
+.footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.footer-links a {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: rgba(244, 239, 228, 0.8);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  color: var(--color-gold);
+}
+
+/* ---------- Column 3: Opening Hours ---------- */
+.footer-hours {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-hours li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: rgba(244, 239, 228, 0.8);
+}
+
+.footer-hours li span:first-child {
+  font-weight: 600;
+  color: var(--color-light);
+}
+
+/* Open/Closed badge — text and dot color set via .is-open / .is-closed,
+   toggled in js/script.js based on the current day and time */
+.footer-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: rgba(244, 239, 228, 0.08);
+  border: 1px solid rgba(244, 239, 228, 0.2);
+  color: var(--color-light);
+}
+
+.footer-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(244, 239, 228, 0.4); /* neutral until JS sets a state */
+}
+
+.footer-status-badge.is-open .footer-status-dot {
+  background-color: #3ddc84; /* soft green — distinct from the WhatsApp CTA green */
+}
+
+.footer-status-badge.is-open {
+  border-color: rgba(61, 220, 132, 0.4);
+}
+
+.footer-status-badge.is-closed .footer-status-dot {
+  background-color: var(--color-clay);
+}
+
+.footer-status-badge.is-closed {
+  border-color: rgba(168, 73, 47, 0.4);
+}
+
+/* ---------- Column 4: Contact ---------- */
+.footer-contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.footer-contact-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: rgba(244, 239, 228, 0.8);
+}
+
+.footer-contact-list i {
+  width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--color-gold);
+  margin-top: 0.15rem;
+}
+
+.footer-contact-list a,
+.footer-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: inherit;
+  color: rgba(244, 239, 228, 0.8);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.footer-contact-list a:hover,
+.footer-contact-list a:focus-visible,
+.footer-link-btn:hover,
+.footer-link-btn:focus-visible {
+  color: var(--color-gold);
+}
+
+/* ---------- Bottom bar ---------- */
+.footer-bottom {
+  border-top: 1px solid rgba(244, 239, 228, 0.12);
+}
+
+.footer-copyright {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: rgba(244, 239, 228, 0.65);
+}
+
+.footer-legal {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+.footer-legal a {
+  color: rgba(244, 239, 228, 0.65);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-legal a:hover,
+.footer-legal a:focus-visible {
+  color: var(--color-gold);
+}
+
+/* =================================================================
+   FLOATING ACTION BUTTONS
+   (WhatsApp reserve button + back-to-top button)
+   ================================================================= */
+
+/* Sticky WhatsApp button, bottom-right, always available */
+.whatsapp-fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1040; /* above page content and the fixed navbar, below the lightbox modal */
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-whatsapp);
+  color: #fff;
+  font-size: 1.6rem;
+  box-shadow: 0 10px 26px rgba(37, 211, 102, 0.45);
+  animation: whatsappPulse 2.6s ease-in-out infinite;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.whatsapp-fab:hover,
+.whatsapp-fab:focus-visible {
+  background-color: var(--color-whatsapp-dark);
+  color: #fff;
+  transform: scale(1.06);
+}
+
+/* Subtle pulsing ring to draw the eye without being distracting */
+@keyframes whatsappPulse {
+  0%, 100% {
+    box-shadow: 0 10px 26px rgba(37, 211, 102, 0.45), 0 0 0 0 rgba(37, 211, 102, 0.4);
+  }
+  50% {
+    box-shadow: 0 10px 26px rgba(37, 211, 102, 0.45), 0 0 0 10px rgba(37, 211, 102, 0);
+  }
+}
+
+/* Back-to-top button — stacked directly above the WhatsApp FAB.
+   Hidden by default; JS adds .show past a 300px scroll threshold. */
+.back-to-top {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 5.5rem;
+  z-index: 1040;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(244, 239, 228, 0.3);
+  border-radius: 50%;
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  font-size: 1.15rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  background-color: var(--color-gold);
+  color: var(--color-dark);
+}
+
+/* Keep both FABs clear of small-screen thumb zones and the footer edge */
+@media (max-width: 575.98px) {
+  .whatsapp-fab {
+    right: 1rem;
+    bottom: 1rem;
+    width: 52px;
+    height: 52px;
+    font-size: 1.4rem;
+  }
+
+  .back-to-top {
+    right: 1rem;
+    bottom: 4.75rem;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+/* Respect reduced-motion: no pulsing ring, no slide-in on the back-to-top button */
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab {
+    animation: none;
+  }
+
+  .back-to-top {
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    transform: none;
+  }
+}
+
+/* =================================================================
+   PROFESSIONAL POLISH — loader, dividers, testimonials, parallax,
+   custom cursor, 3D card tilt
+   ================================================================= */
+
+/* ---------- 1. Page loader ---------- */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 3000; /* above navbar, FABs and the lightbox modal */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-dark);
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+/* Added by JS once the window "load" event fires */
+.page-loader.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.page-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.page-loader-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.page-loader-spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid rgba(201, 162, 75, 0.25);
+  border-top-color: var(--color-gold);
+  animation: loaderSpin 0.9s linear infinite;
+}
+
+@keyframes loaderSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- 6. Diagonal section dividers ----------
+   Each divider gets two inline custom properties:
+     --divider-bg   : color of the section ABOVE it
+     --divider-fill : color of the section BELOW it
+   The diagonal wedge (fill color) rises from the boundary into the
+   upper section's color, so the two sections meet on a clean slant. */
+.section-divider {
+  position: relative;
+  width: 100%;
+  height: 70px;
+  margin-top: -1px; /* avoids a 1px seam between sections on some displays */
+  overflow: hidden;
+  line-height: 0;
+  pointer-events: none;
+  background-color: var(--divider-bg, var(--color-dark));
+}
+
+.section-divider svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.section-divider .divider-fill {
+  fill: var(--divider-fill, var(--color-light));
+}
+
+/* Thin gold hairline running along the diagonal edge */
+.section-divider .divider-line {
+  stroke: var(--color-gold);
+  stroke-width: 1.5;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke; /* keeps the line crisp when the SVG stretches */
+}
+
+@media (max-width: 575.98px) {
+  .section-divider {
+    height: 38px;
+  }
+}
+
+/* ---------- 1. Testimonials ---------- */
+.testimonials-section {
+  position: relative;
+  background-color: var(--color-dark);
+  padding-top: 4rem;
+  padding-bottom: 5rem;
+}
+
+/* Title block: light-on-dark overrides of the shared section classes */
+.testimonials-section .section-eyebrow {
+  color: var(--color-gold);
+}
+
+.testimonials-section .section-title {
+  color: var(--color-light);
+}
+
+.testimonials-section .section-desc {
+  color: rgba(244, 239, 228, 0.72);
+}
+
+.testimonial-carousel {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 4rem; /* room for the side arrows on desktop */
+}
+
+.testimonial-card {
+  max-width: 620px;
+  padding: 0.5rem 0 3.25rem; /* bottom space keeps text clear of the dots */
+  text-align: center;
+}
+
+.testimonial-avatar {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--color-gold);
+  padding: 3px;
+  margin-bottom: 1rem;
+}
+
+.testimonial-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  color: var(--color-gold);
+  font-size: 1.05rem;
+}
+
+.testimonial-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+  line-height: 1.55;
+  color: var(--color-light);
+  margin-bottom: 1.5rem;
+}
+
+.testimonial-name {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-gold);
+  margin: 0;
+}
+
+.testimonial-role {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: rgba(244, 239, 228, 0.6);
+  margin: 0.15rem 0 0;
+}
+
+/* Prev / next arrows — circular icon buttons instead of Bootstrap's default chevrons */
+.testimonial-carousel .carousel-control-prev,
+.testimonial-carousel .carousel-control-next {
+  width: 48px;
+  top: 40%;
+  bottom: auto;
+  height: 48px;
+  opacity: 1;
+}
+
+.testimonial-carousel .carousel-control-prev { left: 0; }
+.testimonial-carousel .carousel-control-next { right: 0; }
+
+.testimonial-nav-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(244, 239, 228, 0.3);
+  background-color: rgba(244, 239, 228, 0.08);
+  color: var(--color-light);
+  font-size: 1.1rem;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.testimonial-carousel .carousel-control-prev:hover .testimonial-nav-icon,
+.testimonial-carousel .carousel-control-next:hover .testimonial-nav-icon,
+.testimonial-carousel .carousel-control-prev:focus-visible .testimonial-nav-icon,
+.testimonial-carousel .carousel-control-next:focus-visible .testimonial-nav-icon {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-dark);
+}
+
+/* Indicator dots (Bootstrap renders these as flat bars by default) */
+.testimonial-carousel .carousel-indicators {
+  margin-bottom: 0;
+}
+
+.testimonial-carousel .carousel-indicators [data-bs-target] {
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(244, 239, 228, 0.35);
+  opacity: 1;
+  margin: 0 5px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.testimonial-carousel .carousel-indicators .active {
+  background-color: var(--color-gold);
+  transform: scale(1.3);
+}
+
+@media (max-width: 575.98px) {
+  .testimonial-carousel {
+    padding: 0 0.5rem;
+  }
+
+  /* On phones the arrows would crowd the text, so park them under it,
+     level with the dots; swiping still works via Bootstrap's touch support */
+  .testimonial-carousel .carousel-control-prev,
+  .testimonial-carousel .carousel-control-next {
+    top: auto;
+    bottom: -0.35rem;
+    width: 40px;
+    height: 40px;
+  }
+
+  .testimonial-carousel .carousel-control-prev { left: 0.25rem; }
+  .testimonial-carousel .carousel-control-next { right: 0.25rem; }
+
+  .testimonial-nav-icon {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* ---------- 3. Hero parallax ----------
+   Pure CSS: fixed attachment makes the photo move slower than the page.
+   Only enabled on large screens (fixed backgrounds are janky on mobile
+   browsers) and never when the user prefers reduced motion. */
+@media (min-width: 992px) {
+  .hero-bg {
+    background-attachment: fixed;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* ---------- 2. Custom cursor ---------- */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3500; /* above everything, including the loader */
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-gold);
+  border: 1.5px solid transparent;
+  pointer-events: none;
+  opacity: 0; /* stays hidden until JS confirms a mouse is present */
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease,
+              border-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Enabled by JS (body.has-custom-cursor) on mouse devices only */
+body.has-custom-cursor .custom-cursor {
+  opacity: 1;
+}
+
+/* Hide the native pointer everywhere while the custom dot is active */
+body.has-custom-cursor,
+body.has-custom-cursor a,
+body.has-custom-cursor button,
+body.has-custom-cursor [role="button"],
+body.has-custom-cursor .gallery-item,
+body.has-custom-cursor label,
+body.has-custom-cursor select {
+  cursor: none;
+}
+
+/* Grows into a soft ring over interactive elements */
+.custom-cursor.grow {
+  width: 38px;
+  height: 38px;
+  background-color: rgba(201, 162, 75, 0.22);
+  border-color: var(--color-gold);
+}
+
+/* Fades out when the pointer leaves the window */
+.custom-cursor.is-hidden {
+  opacity: 0 !important;
+}
+
+/* ---------- 4. 3D tilt on menu cards ---------- */
+/* While the pointer is over a card, JS sets an inline transform on every
+   mouse move; a short transition keeps that feeling responsive instead of
+   lagging behind the pointer at the card's normal 0.35s hover speed. */
+.menu-card.tilt-active {
+  transition: transform 0.1s ease-out, box-shadow 0.35s ease;
+  will-change: transform;
+}
+
+/* ---------- Reduced motion: quiet every new animation ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .page-loader {
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .page-loader-spinner {
+    animation: none;
+    border-color: var(--color-gold); /* static ring instead of a spinner */
+  }
+
+  .testimonial-nav-icon,
+  .testimonial-carousel .carousel-indicators [data-bs-target] {
+    transition: none;
+  }
+
+  .custom-cursor {
+    display: none;
+  }
+}
+
+/* =================================================================
+   NEW FEATURES — promo banner, sticky header, dark mode toggle,
+   team cards, Flatpickr theming, dark theme
+   ================================================================= */
+
+/* New tokens only — existing variables are left untouched */
+:root {
+  --promo-banner-height: 44px;
+}
+
+@media (max-width: 575.98px) {
+  :root {
+    --promo-banner-height: 56px; /* room for two lines of text on phones */
+  }
+}
+
+/* ---------- Sticky header ----------
+   The navbar used to be Bootstrap's fixed-top. It now lives in a sticky
+   <header> so the promo banner above it scrolls away naturally instead
+   of being covered. The negative margin pulls the hero up underneath the
+   (transparent) navbar exactly as before. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  margin-bottom: calc(-1 * var(--navbar-height));
+}
+
+/* ---------- Promo banner ---------- */
+.promo-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--promo-banner-height);
+  padding: 0 3rem; /* keeps text clear of the close button */
+  background-color: var(--color-gold);
+  color: var(--color-charcoal);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.promo-banner-text {
+  margin: 0;
+}
+
+.promo-banner-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-charcoal);
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.promo-banner-close:hover {
+  background-color: rgba(28, 26, 23, 0.14);
+}
+
+/* The default gold focus ring would vanish on a gold banner */
+.promo-banner-close:focus-visible {
+  outline-color: var(--color-charcoal);
+}
+
+/* While the banner is showing, the hero shrinks by its height so the
+   scroll indicator still sits inside the first screen */
+html.has-promo-banner .hero-section {
+  min-height: calc(100vh - var(--promo-banner-height));
+}
+
+@media (max-width: 575.98px) {
+  .promo-banner {
+    font-size: 0.8rem;
+    padding: 0 2.75rem;
+  }
+}
+
+/* ---------- Navbar actions + dark mode toggle ---------- */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 991.98px) {
+  .nav-actions {
+    margin-top: 0.75rem;
+  }
+
+  /* The wrapper now provides the spacing, not the button */
+  .nav-actions .btn-reserve {
+    margin-top: 0;
+  }
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(244, 239, 228, 0.3);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-cream);
+  font-size: 1.05rem;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-charcoal);
+}
+
+/* Moon in light mode (click to go dark), sun in dark mode */
+.theme-icon--sun {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon--moon {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon--sun {
+  display: inline-block;
+}
+
+/* ---------- Divider colour modifiers (replace the old inline styles) ---------- */
+.section-divider--dark-to-light {
+  --divider-bg: var(--color-dark);
+  --divider-fill: var(--color-light);
+}
+
+.section-divider--light-to-dark {
+  --divider-bg: var(--color-light);
+  --divider-fill: var(--color-dark);
+}
+
+.section-divider--dark-to-parchment {
+  --divider-bg: var(--color-dark);
+  --divider-fill: var(--color-parchment);
+}
+
+.section-divider--parchment-to-light {
+  --divider-bg: var(--color-parchment);
+  --divider-fill: var(--color-light);
+}
+
+/* ---------- Team cards (inside #about) ---------- */
+.about-team {
+  margin-top: 5rem;
+}
+
+.section-title--sm {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+/* Same visual language as .menu-card */
+.team-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(28, 26, 23, 0.07);
+  transition: opacity 0.6s ease, transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 36px rgba(28, 26, 23, 0.15);
+}
+
+.team-card-img {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background-color: var(--color-charcoal); /* fallback while the photo loads */
+}
+
+.team-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.team-card:hover .team-card-img img {
+  transform: scale(1.08);
+}
+
+/* Gold overlay revealing the role on hover */
+.team-card-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  background-color: rgba(201, 162, 75, 0.88);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.team-card:hover .team-card-overlay,
+.team-card:focus-within .team-card-overlay {
+  opacity: 1;
+}
+
+.team-card-overlay-role {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.35rem;
+  color: var(--color-charcoal);
+}
+
+.team-card-body {
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.team-card-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.15rem;
+  color: var(--color-dark);
+}
+
+.team-card-role {
+  margin: 0.25rem 0 0.75rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.team-card-bio {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(35, 31, 28, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-card,
+  .team-card-img img,
+  .team-card-overlay {
+    transition: none;
+  }
+
+  .team-card:hover {
+    transform: none;
+  }
+
+  .team-card:hover .team-card-img img {
+    transform: none;
+  }
+}
+
+/* ---------- Flatpickr theming (light) ---------- */
+.flatpickr-calendar {
+  font-family: var(--font-body);
+  border: 1px solid rgba(28, 26, 23, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(28, 26, 23, 0.2);
+}
+
+/* Hide the little pointer arrow — it clashes with the rounded corners */
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+  display: none;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  font-family: var(--font-display);
+}
+
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+  background: rgba(201, 162, 75, 0.18);
+  border-color: rgba(201, 162, 75, 0.18);
+}
+
+.flatpickr-day.today {
+  border-color: var(--color-gold);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.selected:focus,
+.flatpickr-day.today:hover,
+.flatpickr-day.today:focus {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-charcoal);
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+  color: rgba(28, 26, 23, 0.25);
+  background: transparent;
+  border-color: transparent;
+}
+
+.flatpickr-time input,
+.flatpickr-time .flatpickr-am-pm {
+  font-family: var(--font-body);
+}
+
+/* =================================================================
+   DARK THEME  —  html[data-theme="dark"]
+   Strategy: the light sections use --color-light / --color-dark as
+   "surface" and "text". Inside those sections only, the two are swapped
+   (and --color-parchment darkened), so most rules flip automatically.
+   Dark sections (hero, testimonials, footer, navbar) keep the originals.
+   Hard-coded #fff / rgba(ink) values are overridden explicitly below.
+   ================================================================= */
+[data-theme="dark"] {
+  color-scheme: dark; /* dark scrollbars, native controls, date inputs */
+
+  /* Accent text: clay is too dim on a dark surface, so use gold instead */
+  --color-accent: var(--color-gold);
+
+  /* New dark-only tokens */
+  --dm-surface: #14120F;
+  --dm-surface-alt: #1B1814;
+  --dm-card: #221E19;
+  --dm-field: #2A251F;
+  --dm-border: rgba(244, 239, 228, 0.16);
+  --dm-text: rgba(244, 239, 228, 0.9);
+  --dm-text-muted: rgba(244, 239, 228, 0.72);
+}
+
+[data-theme="dark"] body {
+  background-color: var(--dm-surface);
+  color: var(--dm-text);
+}
+
+/* Swap surface/text tokens inside the light sections */
+[data-theme="dark"] .menu-section,
+[data-theme="dark"] .gallery-section,
+[data-theme="dark"] .contact-section,
+[data-theme="dark"] .about-section {
+  --color-light: var(--dm-surface);
+  --color-parchment: var(--dm-surface-alt);
+  --color-dark: var(--color-cream);
+}
+
+/* Muted paragraph text */
+[data-theme="dark"] .section-desc,
+[data-theme="dark"] .menu-card-desc,
+[data-theme="dark"] .about-text,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .contact-card-text,
+[data-theme="dark"] .contact-hours-list li,
+[data-theme="dark"] .team-card-bio {
+  color: var(--dm-text-muted);
+}
+
+/* Cards */
+[data-theme="dark"] .menu-card,
+[data-theme="dark"] .contact-card,
+[data-theme="dark"] .team-card {
+  background-color: var(--dm-card);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .menu-card:hover,
+[data-theme="dark"] .team-card:hover {
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* Elements whose background used the (now swapped) --color-dark */
+[data-theme="dark"] .contact-card-icon {
+  background-color: rgba(201, 162, 75, 0.14);
+}
+
+[data-theme="dark"] .about-badge {
+  background-color: var(--color-charcoal);
+  color: var(--color-cream);
+}
+
+/* Hairlines and outlines */
+[data-theme="dark"] .filter-btn {
+  border-color: var(--dm-border);
+}
+
+[data-theme="dark"] .filter-btn:hover {
+  border-color: var(--color-gold);
+}
+
+[data-theme="dark"] .about-stats {
+  border-top-color: var(--dm-border);
+}
+
+/* Contact form */
+[data-theme="dark"] .contact-form {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .contact-form .form-control,
+[data-theme="dark"] .contact-form .form-select {
+  background-color: var(--dm-field);
+  border-color: var(--dm-border);
+  color: var(--color-cream);
+}
+
+[data-theme="dark"] .contact-form .form-control:focus,
+[data-theme="dark"] .contact-form .form-select:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 0.2rem rgba(201, 162, 75, 0.25);
+}
+
+/* Google Maps has no dark mode, so invert it and rotate the hues back */
+[data-theme="dark"] .contact-map iframe {
+  filter: invert(0.92) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
+
+/* Section dividers: follow the darkened surfaces */
+[data-theme="dark"] .section-divider--dark-to-light {
+  --divider-fill: var(--dm-surface);
+}
+
+[data-theme="dark"] .section-divider--light-to-dark {
+  --divider-bg: var(--dm-surface);
+}
+
+[data-theme="dark"] .section-divider--dark-to-parchment {
+  --divider-fill: var(--dm-surface-alt);
+}
+
+[data-theme="dark"] .section-divider--parchment-to-light {
+  --divider-bg: var(--dm-surface-alt);
+  --divider-fill: var(--dm-surface);
+}
+
+/* Flatpickr popup in dark mode */
+[data-theme="dark"] .flatpickr-calendar {
+  background: var(--dm-card);
+  border-color: var(--dm-border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .flatpickr-months .flatpickr-month,
+[data-theme="dark"] .flatpickr-current-month .flatpickr-monthDropdown-months,
+[data-theme="dark"] .flatpickr-current-month input.cur-year {
+  background: transparent;
+  color: var(--color-cream);
+  fill: var(--color-cream);
+}
+
+[data-theme="dark"] .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+  background-color: var(--dm-card);
+}
+
+[data-theme="dark"] .flatpickr-months .flatpickr-prev-month svg,
+[data-theme="dark"] .flatpickr-months .flatpickr-next-month svg {
+  fill: var(--color-cream);
+}
+
+[data-theme="dark"] .flatpickr-months .flatpickr-prev-month:hover svg,
+[data-theme="dark"] .flatpickr-months .flatpickr-next-month:hover svg {
+  fill: var(--color-gold);
+}
+
+[data-theme="dark"] span.flatpickr-weekday {
+  background: transparent;
+  color: var(--dm-text-muted);
+}
+
+[data-theme="dark"] .flatpickr-day {
+  color: var(--color-cream);
+}
+
+[data-theme="dark"] .flatpickr-day.prevMonthDay,
+[data-theme="dark"] .flatpickr-day.nextMonthDay,
+[data-theme="dark"] .flatpickr-day.flatpickr-disabled,
+[data-theme="dark"] .flatpickr-day.flatpickr-disabled:hover {
+  color: rgba(244, 239, 228, 0.28);
+}
+
+[data-theme="dark"] .flatpickr-day:hover,
+[data-theme="dark"] .flatpickr-day:focus {
+  background: rgba(201, 162, 75, 0.22);
+  border-color: transparent;
+}
+
+/* Re-assert gold selection: the plain .flatpickr-day colour above would win otherwise */
+[data-theme="dark"] .flatpickr-day.selected,
+[data-theme="dark"] .flatpickr-day.selected:hover,
+[data-theme="dark"] .flatpickr-day.today:hover,
+[data-theme="dark"] .flatpickr-day.today:focus {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-charcoal);
+}
+
+[data-theme="dark"] .flatpickr-time {
+  border-top-color: var(--dm-border);
+}
+
+[data-theme="dark"] .flatpickr-time input,
+[data-theme="dark"] .flatpickr-time .flatpickr-time-separator,
+[data-theme="dark"] .flatpickr-time .flatpickr-am-pm {
+  background: transparent;
+  color: var(--color-cream);
+}
+
+[data-theme="dark"] .flatpickr-time input:hover,
+[data-theme="dark"] .flatpickr-time input:focus,
+[data-theme="dark"] .flatpickr-time .flatpickr-am-pm:hover,
+[data-theme="dark"] .numInputWrapper:hover {
+  background: rgba(244, 239, 228, 0.08);
+}
+
+[data-theme="dark"] .numInputWrapper span.arrowUp::after {
+  border-bottom-color: var(--color-cream);
+}
+
+[data-theme="dark"] .numInputWrapper span.arrowDown::after {
+  border-top-color: var(--color-cream);
+}
+
+/* ---------- 200ms theme cross-fade ----------
+   JS adds .theme-transition to <html> for ~250ms around a toggle click
+   (never on first load, and never for reduced-motion visitors). */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+              box-shadow 0.2s ease, fill 0.2s ease, stroke 0.2s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
+}
+
+
+/* =================================================================
+   MULTILINGUAL SUPPORT (EN / FR / AR)
+   Language switcher, Arabic typography and right-to-left overrides.
+   Text is translated by js/i18n.js, which also sets <html lang="…">
+   and <html dir="rtl"> for Arabic and loads Bootstrap's RTL build.
+   Bootstrap's own components flip automatically; the rules below
+   mirror the parts of THIS stylesheet that use physical left/right.
+   ================================================================= */
+
+/* ---------- Language switcher (navbar) ---------- */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 3px;
+  border: 1px solid rgba(244, 239, 228, 0.3);
+  border-radius: 999px;
+}
+
+.lang-btn {
+  min-width: 36px;
+  height: 30px;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.lang-btn:hover,
+.lang-btn:focus-visible {
+  color: var(--color-gold);
+}
+
+.lang-btn[aria-pressed="true"],
+.lang-btn[aria-pressed="true"]:hover,
+.lang-btn[aria-pressed="true"]:focus-visible {
+  background-color: var(--color-gold);
+  color: var(--color-charcoal);
+}
+
+@media (max-width: 991.98px) {
+  .nav-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Arabic typography ---------- */
+/* Arabic letters join each other, so letter-spacing and forced upper-case
+   (used by eyebrows, badges, buttons…) must be switched off. */
+html[lang="ar"] {
+  --font-display: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  --font-body: "Cairo", "Segoe UI", Tahoma, sans-serif;
+}
+
+html[lang="ar"] body {
+  line-height: 1.8;
+}
+
+html[lang="ar"] *,
+html[lang="ar"] *::before,
+html[lang="ar"] *::after {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* Arabic headings read better a touch heavier than the Latin display serif */
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4,
+html[lang="ar"] .brand-mark {
+  font-weight: 700;
+}
+
+/* Slanted (synthetic italic) Arabic letters look broken: keep the italics
+   for Latin text only, i.e. switch them off for Arabic. */
+html[lang="ar"] .hero-title--accent,
+html[lang="ar"] .about-quote,
+html[lang="ar"] .testimonial-quote,
+html[lang="ar"] .team-card-overlay-role {
+  font-style: normal;
+}
+
+/* The logo is a Latin wordmark: keep it left-to-right and in its own face */
+html[dir="rtl"] .navbar-brand,
+html[dir="rtl"] .footer-brand,
+html[dir="rtl"] .page-loader-logo {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+html[lang="ar"] .brand-mark {
+  font-family: "Fraunces", "Georgia", serif;
+  font-weight: 500;
+}
+
+/* ---------- Right-to-left: numbers and contact details stay left-to-right ---------- */
+html[dir="rtl"] .contact-methods-list a,
+html[dir="rtl"] .contact-methods-link,
+html[dir="rtl"] .footer-contact-list a[href^="tel:"],
+html[dir="rtl"] .footer-contact-list a[href^="mailto:"],
+html[dir="rtl"] .footer-link-btn,
+html[dir="rtl"] .contact-hours-list li span:last-child,
+html[dir="rtl"] .footer-hours li span:last-child,
+html[dir="rtl"] .stat-number {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+html[dir="rtl"] input[type="tel"],
+html[dir="rtl"] input[type="email"] {
+  direction: ltr;
+  text-align: right;
+}
+
+/* ---------- Right-to-left: mirrored positions ---------- */
+/* Nav underline grows from the reading start */
+html[dir="rtl"] .navbar-nav .nav-link::after {
+  transform-origin: right;
+}
+
+/* Floating buttons and the promo close button move to the other corner */
+html[dir="rtl"] .whatsapp-fab,
+html[dir="rtl"] .back-to-top {
+  right: auto;
+  left: 1.5rem;
+}
+
+html[dir="rtl"] .promo-banner-close {
+  right: auto;
+  left: 0.75rem;
+}
+
+@media (max-width: 575.98px) {
+  html[dir="rtl"] .whatsapp-fab,
+  html[dir="rtl"] .back-to-top {
+    right: auto;
+    left: 1rem;
+  }
+}
+
+/* About image: decorative frame and badge swap sides */
+html[dir="rtl"] .about-image-frame {
+  padding: 1.25rem 0 1.25rem 1.25rem;
+}
+
+html[dir="rtl"] .about-image-frame::before {
+  right: auto;
+  left: 0;
+}
+
+html[dir="rtl"] .about-badge {
+  left: auto;
+  right: -0.5rem;
+}
+
+@media (max-width: 991.98px) {
+  html[dir="rtl"] .about-image-frame {
+    padding: 1rem 0 1rem 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  html[dir="rtl"] .about-badge {
+    left: auto;
+    right: -0.25rem;
+  }
+}
+
+/* Slide-in directions follow the mirrored columns.
+   (.is-visible variants are repeated so they keep winning on specificity.) */
+html[dir="rtl"] .fade-in-left {
+  transform: translateX(40px);
+}
+
+html[dir="rtl"] .fade-in-right {
+  transform: translateX(-40px);
+}
+
+html[dir="rtl"] .fade-in-left.is-visible,
+html[dir="rtl"] .fade-in-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Lightbox: close button, previous (right) and next (left) arrows */
+html[dir="rtl"] .lightbox-close {
+  right: auto;
+  left: 1.5rem;
+}
+
+html[dir="rtl"] .lightbox-prev {
+  left: auto;
+  right: 1rem;
+}
+
+html[dir="rtl"] .lightbox-next {
+  right: auto;
+  left: 1rem;
+}
+
+@media (max-width: 575.98px) {
+  html[dir="rtl"] .lightbox-close {
+    right: auto;
+    left: 1rem;
+  }
+
+  html[dir="rtl"] .lightbox-prev {
+    left: auto;
+    right: 0.5rem;
+  }
+
+  html[dir="rtl"] .lightbox-next {
+    right: auto;
+    left: 0.5rem;
+  }
+}
+
+/* Testimonials: previous on the right, next on the left */
+html[dir="rtl"] .testimonial-carousel .carousel-control-prev {
+  left: auto;
+  right: 0;
+}
+
+html[dir="rtl"] .testimonial-carousel .carousel-control-next {
+  right: auto;
+  left: 0;
+}
+
+@media (max-width: 575.98px) {
+  html[dir="rtl"] .testimonial-carousel .carousel-control-prev {
+    left: auto;
+    right: 0.25rem;
+  }
+
+  html[dir="rtl"] .testimonial-carousel .carousel-control-next {
+    right: auto;
+    left: 0.25rem;
+  }
+}
+
+/* Directional icons point the other way */
+html[dir="rtl"] .lightbox-nav i,
+html[dir="rtl"] .testimonial-nav-icon i,
+html[dir="rtl"] .bi-arrow-right,
+html[dir="rtl"] .bi-arrow-up-right {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* ---------- Mobile: the About columns wait 40px off-screen before sliding in,
+   which made the page scroll sideways on phones (in every language).
+   `clip` hides that overflow without creating a scroll container. ---------- */
+.about-section {
+  overflow-x: clip;
+}

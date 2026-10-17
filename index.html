@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en" class="has-promo-banner">
+<head>
+  <!-- ===== Meta ===== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Maison Braise — a modern restaurant showcase: menu, gallery, opening hours and easy WhatsApp reservations.">
+  <meta name="author" content="Maison Braise">
+  <title>Maison Braise | Restaurant</title>
+
+  <!-- ===== Favicon ===== -->
+  <!-- Replaced the local file with an inline SVG data URI — a flame emoji,
+       since no Unsplash photo is an appropriate substitute for a small icon. -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+
+  <!-- ===== Preload the hero background image — it's the largest above-the-fold
+       asset, so loading it early avoids a delayed paint on first view ===== -->
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1552960226-639240203497?w=1600&q=80">
+
+  <!-- ===== Open Graph (social sharing previews) ===== -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Maison Braise | Restaurant">
+  <meta property="og:description" content="Fire-cooked food, warm nights — discover our menu, gallery and easy WhatsApp reservations.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1552960226-639240203497?w=1200&q=80">
+
+  <!-- ===== Google Fonts ===== -->
+  <!-- Fraunces: warm display serif for headings / logo -->
+  <!-- Work Sans: clean sans-serif for body text & UI -->
+  <!-- Cairo: Arabic typeface (used when the page is in Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ===== Bootstrap 5 CSS (CDN) ===== -->
+  <!-- i18n.js must stay here, before the stylesheets: it sets <html lang/dir> and writes the
+       matching Bootstrap build (LTR, or RTL for Arabic). See js/i18n.js. -->
+  <script src="js/i18n.js"></script>
+  <noscript><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></noscript>
+
+  <!-- ===== Bootstrap Icons (CDN) ===== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- ===== Flatpickr 4.6.13 CSS (reservation date/time pickers) ===== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+
+  <!-- ===== Custom Stylesheet ===== -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- PROMO BANNER                                   -->
+  <!-- Dismissible; the choice is remembered in       -->
+  <!-- localStorage ("banner-dismissed"), see script.js -->
+  <!-- ============================================= -->
+  <div class="promo-banner" id="promoBanner" role="region" aria-label="Promotion">
+    <p class="promo-banner-text" data-i18n="promo.text"> Promo: -20% on the entire menu this Friday</p>
+    <button type="button" class="promo-banner-close" id="promoBannerClose" aria-label="Dismiss promotion" data-i18n-attr="aria-label:promo.close">
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- ============================================= -->
+  <!-- PAGE LOADER                                    -->
+  <!-- Shown immediately on load, faded out once the  -->
+  <!-- window's "load" event fires (see script.js).   -->
+  <!-- ============================================= -->
+  <div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="page-loader-content">
+      <span class="page-loader-logo">
+        <span class="brand-mark">Maison</span><span class="brand-mark brand-mark--accent">Braise</span>
+      </span>
+      <span class="page-loader-spinner"></span>
+    </div>
+  </div>
+
+  <!-- ============================================= -->
+  <!-- NAVBAR                                         -->
+  <!-- ============================================= -->
+  <!-- The header is sticky (not fixed-top) so the promo banner above it can
+       scroll away naturally; CSS pulls the hero up underneath it. -->
+  <header class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-dark" id="mainNavbar">
+      <div class="container">
+
+        <!-- Logo / Restaurant name -->
+        <a class="navbar-brand" href="#hero">
+          <span class="brand-mark">Maison</span><span class="brand-mark brand-mark--accent">Braise</span>
+        </a>
+
+        <!-- Burger button (mobile) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarContent" aria-controls="navbarContent"
+                aria-expanded="false" aria-label="Toggle navigation" data-i18n-attr="aria-label:nav.toggle">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible content -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+
+          <!-- Nav links -->
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
+            <li class="nav-item">
+              <a class="nav-link" href="#hero" data-i18n="nav.home">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#menu" data-i18n="nav.menu">Menu</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#gallery" data-i18n="nav.gallery">Gallery</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#about" data-i18n="nav.about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact" data-i18n="nav.contact">Contact</a>
+            </li>
+          </ul>
+
+          <!-- Actions: dark-mode toggle + reserve button -->
+          <div class="nav-actions">
+
+            <!-- Language switcher — logic in js/i18n.js. Add a button here to add a language. -->
+            <div class="lang-switch" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.label">
+              <button type="button" class="lang-btn" data-lang="en" lang="en" aria-label="English" aria-pressed="true">EN</button>
+              <button type="button" class="lang-btn" data-lang="fr" lang="fr" aria-label="Français" aria-pressed="false">FR</button>
+              <button type="button" class="lang-btn" data-lang="ar" lang="ar" aria-label="العربية" aria-pressed="false">AR</button>
+            </div>
+
+            <!-- Dark mode toggle — logic in initThemeToggle() (script.js).
+                 Both icons are present; CSS shows the right one per theme. -->
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to dark mode" aria-pressed="false">
+              <i class="bi bi-moon-stars-fill theme-icon theme-icon--moon" aria-hidden="true"></i>
+              <i class="bi bi-sun-fill theme-icon theme-icon--sun" aria-hidden="true"></i>
+            </button>
+
+            <!-- Reserve button — opens WhatsApp with a pre-filled reservation message -->
+            <button
+              type="button"
+              class="btn btn-reserve d-flex align-items-center justify-content-center gap-2"
+              data-wa-message="Hello Maison Braise, I'd like to reserve a table." data-wa-key="wa.reserve">
+              <i class="bi bi-whatsapp"></i>
+              <span data-i18n="cta.reserve">Reserve a Table</span>
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- MAIN CONTENT                                   -->
+  <!-- ============================================= -->
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" class="hero-section">
+
+      <!-- Background image: dim, atmospheric restaurant lighting -->
+      <div class="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1552960226-639240203497?w=1600&q=80');"></div>
+
+      <!-- Dark gradient overlay for text readability -->
+      <div class="hero-overlay"></div>
+
+      <!-- Centered hero content -->
+      <div class="container hero-content">
+        <div class="row justify-content-center">
+          <div class="col-12 col-lg-9 col-xl-8 text-center">
+
+            <!-- Small badge/label -->
+            <span class="hero-badge fade-in-up delay-1" data-i18n="hero.badge">Welcome to Maison Braise</span>
+
+            <!-- Main heading -->
+            <h1 class="hero-title fade-in-up delay-2">
+              <span data-i18n="hero.title1">Bold Flavors,</span> <span class="hero-title--accent" data-i18n="hero.title2">Warm Atmosphere</span>
+            </h1>
+
+            <!-- Subheading / tagline -->
+            <p class="hero-subtitle fade-in-up delay-3" data-i18n="hero.sub">
+              Seasonal, fire-cooked dishes served in a warm, unhurried dining room —
+              come hungry, stay for the evening.
+            </p>
+
+            <!-- CTA buttons -->
+            <div class="hero-cta d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3 fade-in-up delay-4">
+
+              <!-- Opens WhatsApp with a pre-filled reservation message (see js/script.js) -->
+              <button
+                type="button"
+                class="btn btn-whatsapp btn-lg d-inline-flex align-items-center gap-2"
+                data-wa-message="Hello Maison Braise, I'd like to reserve a table." data-wa-key="wa.reserve">
+                <i class="bi bi-whatsapp"></i>
+                <span data-i18n="cta.reserve">Reserve a Table</span>
+              </button>
+
+              <!-- Smooth-scrolls to the #menu section -->
+              <a href="#menu" class="btn btn-outline-hero btn-lg d-inline-flex align-items-center gap-2">
+                <span data-i18n="hero.viewMenu">View Menu</span>
+                <i class="bi bi-arrow-down-short"></i>
+              </a>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll-down indicator -->
+      <a href="#menu" class="scroll-indicator" aria-label="Scroll to menu section" data-i18n-attr="aria-label:hero.scroll">
+        <i class="bi bi-chevron-down"></i>
+      </a>
+
+    </section>
+
+    <!-- Divider: Hero (dark) → Menu (light) -->
+    <div class="section-divider section-divider--dark-to-light" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path class="divider-fill" d="M0,80 L1440,0 L1440,80 L0,80 Z"></path>
+        <line class="divider-line" x1="0" y1="80" x2="1440" y2="0"></line>
+      </svg>
+    </div>
+
+    <!-- ===== MENU ===== -->
+    <section id="menu" class="menu-section">
+      <div class="container">
+
+        <!-- Section title block -->
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-7">
+            <span class="section-eyebrow" data-i18n="menu.eyebrow">Our Menu</span>
+            <h2 class="section-title" data-i18n="menu.title">Discover Our Delicious Dishes</h2>
+            <p class="section-desc" data-i18n="menu.desc">
+              Every plate is cooked over an open flame and built around what's in
+              season — simple, generous food meant to be shared.
+            </p>
+          </div>
+        </div>
+
+        <!-- Category filter tabs (filtering handled in js/script.js) -->
+        <div class="menu-filters d-flex flex-wrap justify-content-center gap-2 mb-5" role="group" aria-label="Filter dishes by category" data-i18n-attr="aria-label:menu.filters">
+          <button type="button" class="filter-btn active" data-filter="all" data-i18n="filter.all">All</button>
+          <button type="button" class="filter-btn" data-filter="starters" data-i18n="filter.starters">Starters</button>
+          <button type="button" class="filter-btn" data-filter="mains" data-i18n="filter.mains">Main Courses</button>
+          <button type="button" class="filter-btn" data-filter="desserts" data-i18n="filter.desserts">Desserts</button>
+          <button type="button" class="filter-btn" data-filter="drinks" data-i18n="filter.drinks">Drinks</button>
+        </div>
+
+        <!-- Dish cards — rendered dynamically from the MENU_ITEMS array in js/script.js -->
+        <div id="menuGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          <!-- Cards are injected here by renderMenu() -->
+        </div>
+
+        <!-- View full menu — opens WhatsApp asking for the complete menu -->
+        <div class="text-center mt-5">
+          <button
+            type="button"
+            class="btn btn-outline-menu btn-lg d-inline-flex align-items-center gap-2"
+            data-wa-message="Hello Maison Braise, could you please send me your full menu?" data-wa-key="wa.menu">
+            <i class="bi bi-whatsapp"></i>
+            <span data-i18n="menu.viewFull">View Full Menu</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== GALLERY ===== -->
+    <section id="gallery" class="gallery-section">
+      <div class="container">
+
+        <!-- Section title block (same pattern as Menu) -->
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-7">
+            <span class="section-eyebrow" data-i18n="gallery.eyebrow">Our Gallery</span>
+            <h2 class="section-title" data-i18n="gallery.title">A Glimpse Into Our World</h2>
+            <p class="section-desc" data-i18n="gallery.desc">
+              From the open flame to the last plate — moments from the dining
+              room, the kitchen and the terrace.
+            </p>
+          </div>
+        </div>
+
+        <!-- Gallery grid — rendered dynamically from the GALLERY_ITEMS array in js/script.js -->
+        <div id="galleryGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          <!-- Items are injected here by renderGallery() -->
+        </div>
+
+        <!-- Instagram link — replace the href with your real profile URL -->
+        <div class="text-center mt-5">
+          <a
+            href="https://instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline-menu btn-lg d-inline-flex align-items-center gap-2">
+            <i class="bi bi-instagram"></i>
+            <span data-i18n="gallery.instagram">Follow us on Instagram</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Divider: Gallery (light) → Testimonials (dark) -->
+    <div class="section-divider section-divider--light-to-dark" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path class="divider-fill" d="M0,80 L1440,0 L1440,80 L0,80 Z"></path>
+        <line class="divider-line" x1="0" y1="80" x2="1440" y2="0"></line>
+      </svg>
+    </div>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section id="testimonials" class="testimonials-section">
+      <div class="container">
+
+        <!-- Section title block (same pattern as other sections, colors
+             overridden for the dark background — see style.css) -->
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-7">
+            <span class="section-eyebrow" data-i18n="testi.eyebrow">Testimonials</span>
+            <h2 class="section-title" data-i18n="testi.title">What Our Guests Say</h2>
+            <p class="section-desc" data-i18n="testi.desc">
+              A few words from the people who keep coming back for
+              seconds — and thirds.
+            </p>
+          </div>
+        </div>
+
+        <!-- Bootstrap carousel — initialized from JS (see initTestimonialsCarousel)
+             so the autoplay interval can respect prefers-reduced-motion -->
+        <div id="testimonialsCarousel" class="carousel slide testimonial-carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#testimonialsCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Review 1" data-i18n-attr="aria-label:testi.review" data-i18n-n="1"></button>
+            <button type="button" data-bs-target="#testimonialsCarousel" data-bs-slide-to="1" aria-label="Review 2" data-i18n-attr="aria-label:testi.review" data-i18n-n="2"></button>
+            <button type="button" data-bs-target="#testimonialsCarousel" data-bs-slide-to="2" aria-label="Review 3" data-i18n-attr="aria-label:testi.review" data-i18n-n="3"></button>
+            <button type="button" data-bs-target="#testimonialsCarousel" data-bs-slide-to="3" aria-label="Review 4" data-i18n-attr="aria-label:testi.review" data-i18n-n="4"></button>
+            <button type="button" data-bs-target="#testimonialsCarousel" data-bs-slide-to="4" aria-label="Review 5" data-i18n-attr="aria-label:testi.review" data-i18n-n="5"></button>
+          </div>
+
+          <div class="carousel-inner">
+
+            <div class="carousel-item active">
+              <div class="testimonial-card mx-auto">
+                <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&q=80" alt="Sofia Martinez" class="testimonial-avatar" loading="lazy">
+                <div class="testimonial-stars" aria-label="5 out of 5 stars" data-i18n-attr="aria-label:testi.stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="testimonial-quote" data-i18n="testi.1.quote">"The lamb shoulder alone is worth the trip — it falls apart the second your fork touches it. This is our go-to for every anniversary now."</p>
+                <p class="testimonial-name">Sofia Martinez</p>
+                <p class="testimonial-role" data-i18n="testi.role.regular">Regular Guest</p>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="testimonial-card mx-auto">
+                <img src="https://images.unsplash.com/photo-1695927621677-ec96e048dce2?w=200&h=200&fit=crop&q=80" alt="Yassin El Amrani" class="testimonial-avatar" loading="lazy">
+                <div class="testimonial-stars" aria-label="5 out of 5 stars" data-i18n-attr="aria-label:testi.stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="testimonial-quote" data-i18n="testi.2.quote">"Best halloumi in the city, hands down. The staff remembered our order from last time — that's the kind of place this is."</p>
+                <p class="testimonial-name">Yassin El Amrani</p>
+                <p class="testimonial-role" data-i18n="testi.role.local">Local Regular</p>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="testimonial-card mx-auto">
+                <img src="https://images.unsplash.com/photo-1564805280186-5d7056d538ca?w=200&h=200&fit=crop&q=80" alt="Claire Dubois" class="testimonial-avatar" loading="lazy">
+                <div class="testimonial-stars" aria-label="5 out of 5 stars" data-i18n-attr="aria-label:testi.stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="testimonial-quote" data-i18n="testi.3.quote">"Cozy, warm, and the octopus starter was incredible. We came for a quick dinner and stayed for dessert — everything we tried was excellent."</p>
+                <p class="testimonial-name">Claire Dubois</p>
+                <p class="testimonial-role" data-i18n="testi.role.first">First-Time Visitor</p>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="testimonial-card mx-auto">
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&q=80" alt="Omar Haddad" class="testimonial-avatar" loading="lazy">
+                <div class="testimonial-stars" aria-label="5 out of 5 stars" data-i18n-attr="aria-label:testi.stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="testimonial-quote" data-i18n="testi.4.quote">"Booked through WhatsApp in two minutes and our table was ready right on time. The pumpkin risotto is criminally good."</p>
+                <p class="testimonial-name">Omar Haddad</p>
+                <p class="testimonial-role" data-i18n="testi.role.regular">Regular Guest</p>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="testimonial-card mx-auto">
+                <img src="https://images.unsplash.com/photo-1590086782792-42dd2350140d?w=200&h=200&fit=crop&q=80" alt="David Chen" class="testimonial-avatar" loading="lazy">
+                <div class="testimonial-stars" aria-label="5 out of 5 stars" data-i18n-attr="aria-label:testi.stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="testimonial-quote" data-i18n="testi.5.quote">"We stumbled in during a trip to Salé and ended up going back three nights in a row. The terrace at sunset is unbeatable."</p>
+                <p class="testimonial-name">David Chen</p>
+                <p class="testimonial-role" data-i18n="testi.role.travel">Traveling Guest</p>
+              </div>
+            </div>
+
+          </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev">
+            <span class="testimonial-nav-icon" aria-hidden="true"><i class="bi bi-chevron-left"></i></span>
+            <span class="visually-hidden" data-i18n="testi.prev">Previous review</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next">
+            <span class="testimonial-nav-icon" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
+            <span class="visually-hidden" data-i18n="testi.next">Next review</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Divider: Testimonials (dark) → About (parchment) -->
+    <div class="section-divider section-divider--dark-to-parchment" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path class="divider-fill" d="M0,80 L1440,0 L1440,80 L0,80 Z"></path>
+        <line class="divider-line" x1="0" y1="80" x2="1440" y2="0"></line>
+      </svg>
+    </div>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about" class="about-section">
+      <div class="container">
+
+        <div class="row align-items-center gy-5">
+
+          <!-- Image column -->
+          <div class="col-lg-6">
+            <div class="about-image-frame fade-in-left">
+              <img src="https://images.unsplash.com/photo-1758243488328-148e39e5e6b1?w=900&h=1125&fit=crop&q=80" alt="Maison Braise dining room and open kitchen" class="about-image" loading="lazy" data-i18n-attr="alt:about.alt">
+              <!-- Floating "Since 2010" badge -->
+              <div class="about-badge">
+                <span class="about-badge-label" data-i18n="about.since">Since</span>
+                <span class="about-badge-year">2010</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text column -->
+          <div class="col-lg-6">
+            <div class="fade-in-right">
+              <span class="section-eyebrow" data-i18n="about.eyebrow">About Us</span>
+              <h2 class="section-title" data-i18n="about.title">A Story of Passion & Flavor</h2>
+
+              <p class="about-text" data-i18n="about.p1">
+                Maison Braise opened its doors in 2010 with a simple idea: cook
+                everything over live fire, source what's close by, and let
+                people linger at the table.
+              </p>
+              <p class="about-text" data-i18n="about.p2">
+                What began as a small neighborhood grill has grown into a
+                gathering place — but the kitchen still runs on the same
+                rhythm: market runs at dawn, slow braises through the
+                afternoon, and the last plate going out well after midnight.
+              </p>
+
+              <!-- Highlights -->
+              <ul class="about-highlights">
+                <li><i class="bi bi-check-circle-fill"></i> <span data-i18n="about.h1">Fresh local ingredients</span></li>
+                <li><i class="bi bi-check-circle-fill"></i> <span data-i18n="about.h2">Traditional recipes, reimagined</span></li>
+                <li><i class="bi bi-check-circle-fill"></i> <span data-i18n="about.h3">Warm & cozy atmosphere</span></li>
+              </ul>
+
+              <a href="#contact" class="btn btn-outline-menu btn-lg d-inline-flex align-items-center gap-2">
+                <span data-i18n="about.discover">Discover More</span>
+                <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Stats row -->
+        <div class="row about-stats gy-4 mt-5 pt-4">
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-item fade-in-scroll">
+              <i class="bi bi-calendar-heart stat-icon"></i>
+              <span class="stat-number" data-count-to="15" data-suffix="+">0</span>
+              <span class="stat-label" data-i18n="stat.years">Years of Experience</span>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-item fade-in-scroll">
+              <i class="bi bi-basket2-fill stat-icon"></i>
+              <span class="stat-number" data-count-to="50" data-suffix="+">0</span>
+              <span class="stat-label" data-i18n="stat.dishes">Dishes on the Menu</span>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-item fade-in-scroll">
+              <i class="bi bi-people-fill stat-icon"></i>
+              <span class="stat-number" data-count-to="10" data-suffix="K+">0</span>
+              <span class="stat-label" data-i18n="stat.customers">Happy Customers</span>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-item fade-in-scroll">
+              <i class="bi bi-star-fill stat-icon"></i>
+              <span class="stat-number" data-count-to="4.9" data-decimals="1">0</span>
+              <span class="stat-label" data-i18n="stat.rating">Average Rating</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Chef / team sub-section -->
+        <div class="about-team">
+
+          <div class="text-center mb-5">
+            <span class="section-eyebrow" data-i18n="team.eyebrow">Our Team</span>
+            <h3 class="section-title section-title--sm" data-i18n="team.title">Meet the Chefs Behind the Fire</h3>
+          </div>
+
+          <div class="row row-cols-1 row-cols-md-3 g-4">
+
+            <div class="col">
+              <article class="team-card fade-in-scroll">
+                <div class="team-card-img">
+                  <img src="https://images.unsplash.com/photo-1689588532679-4bb5fdd8f6d5?w=600&h=750&fit=crop&q=80" alt="Portrait of Chef Yassine Amrani" loading="lazy" data-i18n-attr="alt:team.1.alt">
+                  <div class="team-card-overlay"><span class="team-card-overlay-role" data-i18n="team.1.role">Executive Chef &amp; Founder</span></div>
+                </div>
+                <div class="team-card-body">
+                  <h4 class="team-card-name">Yassine Amrani</h4>
+                  <p class="team-card-role" data-i18n="team.1.role">Executive Chef &amp; Founder</p>
+                  <p class="team-card-bio" data-i18n="team.1.bio">Twenty years at the grill, from Marrakech kitchens to Lyon. He still lights the first fire every morning.</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="col">
+              <article class="team-card fade-in-scroll">
+                <div class="team-card-img">
+                  <img src="https://images.unsplash.com/photo-1701878198293-d1f3641efdb3?w=600&h=750&fit=crop&q=80" alt="Portrait of Chef Salma Benjelloun" loading="lazy" data-i18n-attr="alt:team.2.alt">
+                  <div class="team-card-overlay"><span class="team-card-overlay-role" data-i18n="team.2.role">Sous Chef</span></div>
+                </div>
+                <div class="team-card-body">
+                  <h4 class="team-card-name">Salma Benjelloun</h4>
+                  <p class="team-card-role" data-i18n="team.2.role">Sous Chef</p>
+                  <p class="team-card-bio" data-i18n="team.2.bio">Runs the pass with calm precision and builds our seasonal menu around what the market delivers at dawn.</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="col">
+              <article class="team-card fade-in-scroll">
+                <div class="team-card-img">
+                  <img src="https://images.unsplash.com/photo-1759521296047-89338c8e083d?w=600&h=750&fit=crop&q=80" alt="Portrait of Chef Karim Ouazzani" loading="lazy" data-i18n-attr="alt:team.3.alt">
+                  <div class="team-card-overlay"><span class="team-card-overlay-role" data-i18n="team.3.role">Grill Master</span></div>
+                </div>
+                <div class="team-card-body">
+                  <h4 class="team-card-name">Karim Ouazzani</h4>
+                  <p class="team-card-role" data-i18n="team.3.role">Grill Master</p>
+                  <p class="team-card-bio" data-i18n="team.3.bio">Master of wood, smoke and patience — the reason our lamb falls apart at the touch of a fork.</p>
+                </div>
+              </article>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Chef quote -->
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <blockquote class="about-quote fade-in-scroll">
+              <span data-i18n="about.quote">"Cook with fire, cook with patience, and the rest takes care of itself."</span>
+              <footer class="about-quote-author" data-i18n="about.quoteBy">Chef Yassine Amrani, Founder</footer>
+            </blockquote>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Divider: About (parchment) → Contact (light) -->
+    <div class="section-divider section-divider--parchment-to-light" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path class="divider-fill" d="M0,80 L1440,0 L1440,80 L0,80 Z"></path>
+        <line class="divider-line" x1="0" y1="80" x2="1440" y2="0"></line>
+      </svg>
+    </div>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" class="contact-section">
+      <div class="container">
+
+        <!-- Section title block -->
+        <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-7">
+            <span class="section-eyebrow" data-i18n="contact.eyebrow">Contact Us</span>
+            <h2 class="section-title" data-i18n="contact.title">Visit Us or Get in Touch</h2>
+            <p class="section-desc" data-i18n="contact.desc">
+              Book a table, ask a question, or just say hello — we'll get
+              back to you as soon as we can.
+            </p>
+          </div>
+        </div>
+
+        <div class="row gy-4 gy-lg-0">
+
+          <!-- Left column: contact info cards -->
+          <div class="col-lg-5">
+            <div class="d-flex flex-column gap-4 h-100">
+
+              <!-- Opening hours -->
+              <div class="contact-card fade-in-scroll">
+                <div class="contact-card-icon"><i class="bi bi-clock"></i></div>
+                <div>
+                  <h3 class="contact-card-title" data-i18n="hours.title">Opening Hours</h3>
+                  <ul class="contact-hours-list">
+                    <li><span data-i18n="hours.weekdays">Mon – Thu</span><span>12:00 – 23:00</span></li>
+                    <li><span data-i18n="hours.weekend">Fri – Sun</span><span>12:00 – 00:00</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Address / location -->
+              <div class="contact-card fade-in-scroll">
+                <div class="contact-card-icon"><i class="bi bi-geo-alt"></i></div>
+                <div>
+                  <h3 class="contact-card-title" data-i18n="contact.addressTitle">Address</h3>
+                  <p class="contact-card-text" data-i18n="contact.address">123 Avenue Mohammed VI, Salé, Morocco</p>
+                  <a
+                    href="https://maps.google.com/?q=Sal%C3%A9,+Morocco"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-card-link">
+                    <span data-i18n="contact.directions">Get Directions</span> <i class="bi bi-arrow-up-right"></i>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Phone / WhatsApp / Email -->
+              <div class="contact-card fade-in-scroll">
+                <div class="contact-card-icon"><i class="bi bi-telephone"></i></div>
+                <div class="w-100">
+                  <h3 class="contact-card-title" data-i18n="contact.callTitle">Call, Message or Email</h3>
+                  <ul class="contact-methods-list">
+                    <li>
+                      <i class="bi bi-telephone"></i>
+                      <a href="tel:+212600000000">+212 6 00 00 00 00</a>
+                    </li>
+                    <li>
+                      <i class="bi bi-whatsapp"></i>
+                      <!-- Opens WhatsApp via the shared data-wa-message delegation from Step 2 -->
+                      <button
+                        type="button"
+                        class="contact-methods-link"
+                        data-wa-message="Hello Maison Braise, I'd like some information." data-wa-key="wa.info">
+                        +212 6 00 00 00 00
+                      </button>
+                    </li>
+                    <li>
+                      <i class="bi bi-envelope"></i>
+                      <a href="mailto:hello@maisonbraise.com">hello@maisonbraise.com</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right column: reservation form -->
+          <div class="col-lg-7">
+            <!-- Reservation form: date/time use Flatpickr (initialised in
+                 initReservationPickers, script.js). Flatpickr makes those two
+                 inputs read-only, so the browser can't validate them itself —
+                 script.js checks them by hand. On submit the data is sent to
+                 WhatsApp in French via openWhatsApp(). -->
+            <form id="reservationForm" class="contact-form fade-in-scroll needs-validation" novalidate>
+              <div class="row g-3">
+
+                <div class="col-md-6">
+                  <label for="guestName" class="form-label" data-i18n="form.name">Name</label>
+                  <input type="text" class="form-control" id="guestName" name="name" autocomplete="name" required>
+                  <div class="invalid-feedback" data-i18n="form.err.name">Please enter your name.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="guestPhone" class="form-label" data-i18n="form.phone">Phone</label>
+                  <input type="tel" class="form-control" id="guestPhone" name="phone" autocomplete="tel" required>
+                  <div class="invalid-feedback" data-i18n="form.err.phone">Please enter a valid phone number.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reservationDate" class="form-label" data-i18n="form.date">Date</label>
+                  <input type="text" class="form-control" id="reservationDate" name="date" placeholder="Select a date" autocomplete="off" aria-describedby="reservationDateHint" aria-required="true" data-i18n-attr="placeholder:form.datePlaceholder">
+                  <div class="invalid-feedback" id="reservationDateFeedback" data-i18n="form.err.date">Please choose an available date.</div>
+                  <div class="form-text" id="reservationDateHint" data-i18n="form.err.sunday">Online reservations are unavailable on Sundays.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="reservationTime" class="form-label" data-i18n="form.time">Time</label>
+                  <input type="text" class="form-control" id="reservationTime" name="time" placeholder="Select a time" autocomplete="off" aria-required="true" data-i18n-attr="placeholder:form.timePlaceholder">
+                  <div class="invalid-feedback" id="reservationTimeFeedback" data-i18n="form.err.time">Please choose a time.</div>
+                </div>
+
+                <div class="col-12">
+                  <label for="guestCount" class="form-label" data-i18n="form.guests">Number of Guests</label>
+                  <select class="form-select" id="guestCount" name="guests" required>
+                    <option value="" selected disabled data-i18n="form.select">Select...</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6+">6+</option>
+                  </select>
+                  <div class="invalid-feedback" data-i18n="form.err.guests">Please select the number of guests.</div>
+                </div>
+
+                <div class="col-12">
+                  <button type="submit" class="btn-whatsapp-form d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-whatsapp"></i>
+                    <span data-i18n="form.send">Send via WhatsApp</span>
+                  </button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- Google Maps embed — replace the query with your real address -->
+        <div class="row mt-5">
+          <div class="col-12">
+            <div class="contact-map fade-in-scroll">
+              <iframe
+                src="https://www.google.com/maps?q=Marrakech,Morocco&output=embed"
+                width="100%"
+                height="400"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Restaurant location map" data-i18n-attr="title:map.title">
+              </iframe>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Divider: Contact (light) → Footer (dark) -->
+    <div class="section-divider section-divider--light-to-dark" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path class="divider-fill" d="M0,80 L1440,0 L1440,80 L0,80 Z"></path>
+        <line class="divider-line" x1="0" y1="80" x2="1440" y2="0"></line>
+      </svg>
+    </div>
+
+  </main>
+
+  <!-- ============================================= -->
+  <!-- FOOTER                                         -->
+  <!-- ============================================= -->
+  <footer id="footer" class="site-footer">
+    <div class="container">
+
+      <div class="row gy-5 py-5">
+
+        <!-- Column 1: Brand -->
+        <div class="col-lg-4 col-md-6">
+          <a href="#hero" class="footer-brand">
+            <span class="brand-mark">Maison</span><span class="brand-mark brand-mark--accent">Braise</span>
+          </a>
+          <p class="footer-tagline" data-i18n="footer.tagline">
+            Fire-cooked food, warm nights, and a table that's always
+            ready for you.
+          </p>
+          <div class="footer-socials d-flex gap-2">
+            <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Follow us on Instagram" data-i18n-attr="aria-label:social.follow" data-i18n-n="Instagram">
+              <i class="bi bi-instagram" aria-hidden="true"></i>
+            </a>
+            <a href="https://facebook.com/" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Follow us on Facebook" data-i18n-attr="aria-label:social.follow" data-i18n-n="Facebook">
+              <i class="bi bi-facebook" aria-hidden="true"></i>
+            </a>
+            <a href="https://tiktok.com/" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Follow us on TikTok" data-i18n-attr="aria-label:social.follow" data-i18n-n="TikTok">
+              <i class="bi bi-tiktok" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Column 2: Quick Links -->
+        <div class="col-6 col-md-3 col-lg-2">
+          <h3 class="footer-heading" data-i18n="footer.quick">Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#hero" data-i18n="nav.home">Home</a></li>
+            <li><a href="#menu" data-i18n="nav.menu">Menu</a></li>
+            <li><a href="#gallery" data-i18n="nav.gallery">Gallery</a></li>
+            <li><a href="#about" data-i18n="nav.about">About</a></li>
+            <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Opening Hours -->
+        <div class="col-6 col-md-3 col-lg-3">
+          <h3 class="footer-heading" data-i18n="hours.title">Opening Hours</h3>
+          <ul class="footer-hours">
+            <li><span data-i18n="hours.weekdays">Mon – Thu</span><span>12:00 – 23:00</span></li>
+            <li><span data-i18n="hours.weekend">Fri – Sun</span><span>12:00 – 00:00</span></li>
+          </ul>
+          <!-- Open/Closed status — computed client-side in js/script.js -->
+          <span id="openStatusBadge" class="footer-status-badge">
+            <span class="footer-status-dot" aria-hidden="true"></span>
+            <span id="openStatusText" data-i18n="footer.checking">Checking hours…</span>
+          </span>
+        </div>
+
+        <!-- Column 4: Contact -->
+        <div class="col-md-6 col-lg-3">
+          <h3 class="footer-heading" data-i18n="footer.contact">Contact</h3>
+          <ul class="footer-contact-list">
+            <li>
+              <i class="bi bi-geo-alt" aria-hidden="true"></i>
+              <span data-i18n="contact.address">123 Avenue Mohammed VI, Salé, Morocco</span>
+            </li>
+            <li>
+              <i class="bi bi-telephone" aria-hidden="true"></i>
+              <a href="tel:+212600000000">+212 6 00 00 00 00</a>
+            </li>
+            <li>
+              <i class="bi bi-whatsapp" aria-hidden="true"></i>
+              <!-- Opens WhatsApp via the shared data-wa-message delegation -->
+              <button type="button" class="footer-link-btn" data-wa-message="Hello Maison Braise, I'd like some information." data-wa-key="wa.info">
+                +212 6 00 00 00 00
+              </button>
+            </li>
+            <li>
+              <i class="bi bi-envelope" aria-hidden="true"></i>
+              <a href="mailto:hello@maisonbraise.com">hello@maisonbraise.com</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="footer-bottom d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 py-4">
+        <p class="footer-copyright mb-0">
+          © <span id="footerYear">2026</span> <span data-i18n="footer.rights">Maison Braise. All rights reserved.</span>
+        </p>
+        <div class="footer-legal d-flex gap-3">
+          <a href="#" data-i18n="footer.privacy">Privacy Policy</a>
+          <a href="#" data-i18n="footer.terms">Terms of Service</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ============================================= -->
+  <!-- GALLERY LIGHTBOX MODAL                         -->
+  <!-- Custom-styled Bootstrap modal — populated and   -->
+  <!-- navigated via js/script.js. One instance is     -->
+  <!-- reused for every gallery image.                 -->
+  <!-- ============================================= -->
+  <div class="modal fade lightbox-modal" id="lightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+
+        <!-- Close button (X) -->
+        <button type="button" class="lightbox-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-attr="aria-label:lightbox.close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+
+        <!-- Previous arrow -->
+        <button type="button" class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous image" data-i18n-attr="aria-label:lightbox.prev">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <!-- Image + caption -->
+        <div class="modal-body lightbox-body">
+          <img src="" alt="" id="lightboxImage" class="lightbox-image">
+          <p class="lightbox-caption" id="lightboxCaption"></p>
+        </div>
+
+        <!-- Next arrow -->
+        <button type="button" class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next image" data-i18n-attr="aria-label:lightbox.next">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom cursor dot — only activated on fine-pointer (mouse) devices
+       without reduced-motion preference; see initCustomCursor() in script.js -->
+  <div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+
+  <!-- ============================================= -->
+  <!-- FLOATING ACTION BUTTONS                        -->
+  <!-- ============================================= -->
+
+  <!-- Sticky WhatsApp reserve button — uses the shared data-wa-message
+       delegation, so no extra JS wiring is needed for the click itself -->
+  <button
+    type="button"
+    class="whatsapp-fab"
+    id="whatsappFab"
+    data-wa-message="Hello Maison Braise, I'd like to reserve a table." data-wa-key="wa.reserve"
+    aria-label="Reserve a table on WhatsApp" data-i18n-attr="aria-label:fab.reserve">
+    <i class="bi bi-whatsapp" aria-hidden="true"></i>
+  </button>
+
+  <!-- Back-to-top button — hidden until the page is scrolled 300px (see js/script.js) -->
+  <button type="button" class="back-to-top" id="backToTopBtn" aria-label="Back to top" data-i18n-attr="aria-label:fab.top">
+    <i class="bi bi-arrow-up" aria-hidden="true"></i>
+  </button>
+
+  <!-- ===== Bootstrap 5 JS Bundle (CDN, includes Popper) ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ===== Flatpickr 4.6.13 JS (reservation date/time pickers) ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+
+  <!-- Flatpickr translations for the date/time pickers (French, Arabic) -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/fr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ar.js"></script>
+
+  <!-- ===== Custom Script ===== -->
+  <script src="js/script.js"></script>
+</body>
+</html>
